@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using ExileCore;
+using ExileCore.PoEMemory.MemoryObjects.Ancestor;
 using ExileCore.Shared.Helpers;
 using SharpDX;
 using Vector2 = System.Numerics.Vector2;
@@ -16,6 +17,51 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
     private static readonly Regex SentenceSplitRegex = new Regex(@"\.( +)", RegexOptions.Compiled);
 
     public override void Render()
+    {
+        RenderUnitTier();
+        RenderTribeTier();
+    }
+
+    public void RenderTribeTier()
+    {
+        if (GameController.IngameState.IngameUi.AncestorFightSelectionWindow is { IsVisible: true, Options: { Count: > 0 } options })
+        {
+            foreach (var option in options)
+            {
+                try
+                {
+                    var tribeFavourReward = option.Children[3].Children[0].Children;
+                    foreach (var tribe in tribeFavourReward)
+                    {
+                        
+                        var tooltip = tribe.Children[0].Tooltip.Text;
+                        var tier = Settings.GetTribeTier(tooltip);
+                        var color = tier switch
+                        {
+                            1 => Settings.Tier1Color.Value,
+                            2 => Settings.Tier2Color.Value,
+                            3 => Settings.Tier3Color.Value,
+                            _ => Color.Pink
+                        };
+                        var rect = tribe.GetClientRectCache;
+                        rect.Inflate(-5,0);
+                        if (!rect.Intersects(GameController.IngameState.IngameUi.AncestorFightSelectionWindow.TableContainer.GetClientRectCache)) continue;
+                        Graphics.DrawFrame(rect, color, Settings.FrameThickness);
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogError(ex.ToString());
+                }
+
+            }
+
+
+        }
+
+    }
+    public void RenderUnitTier()
     {
         if (GameController.Game.IngameState.UIHover?.Tooltip is not { IsVisible: true } &&
             GameController.IngameState.IngameUi.AncestorMainShopWindow is { IsVisible: true, Options: { Count: > 0 } options })
@@ -60,5 +106,6 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                 }
             }
         }
+
     }
 }

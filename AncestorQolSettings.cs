@@ -135,6 +135,20 @@ public class AncestorQolSettings : ISettings
         ("NoTribeTotemLife", "Albino Weta"),
     };
 
+    private static readonly List<string> tribes = new()
+    {
+        "Ngamahu Tribe",
+        "Tasalio Tribe",
+        "Arohongui Tribe",
+        "Valako Tribe",
+        "Hinekora Tribe",
+        "Tawhoa Tribe",
+        "Kitava Tribe",
+        "Ramako Tribe",
+        "Tukohama Tribe",
+        "Rongokurai Tribe",
+    };
+
     public AncestorQolSettings()
     {
         var unitFilter = "";
@@ -142,16 +156,46 @@ public class AncestorQolSettings : ISettings
         {
             DrawDelegate = () =>
             {
-                ImGui.Text("Unit tiers");
-                ImGui.InputTextWithHint("##CurrencyFilter", "Filter", ref unitFilter, 100);
-                foreach (var (id, name) in UnitTypes.Where(t => t.Name.Contains(unitFilter, StringComparison.InvariantCultureIgnoreCase)))
+                if (ImGui.TreeNode("Unit tiers"))
                 {
-                    var currentValue = GetUnitTier(id);
-                    if (ImGui.SliderInt($"{name}###{id}", ref currentValue, 1, 3))
+                    
+                    ImGui.InputTextWithHint("##CurrencyFilter", "Filter", ref unitFilter, 100);
+                    foreach (var (id, name) in UnitTypes.Where(t => t.Name.Contains(unitFilter, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        UnitTiers[id] = currentValue;
+                        var currentValue = GetUnitTier(id);
+                        if (ImGui.SliderInt($"{name}###{id}", ref currentValue, 1, 3))
+                        {
+                            UnitTiers[id] = currentValue;
+                        }
                     }
+
+                    ImGui.TreePop();
                 }
+
+            }
+
+        };
+
+        Tribes = new CustomNode
+        {
+            DrawDelegate = () =>
+            {
+
+                if (ImGui.TreeNode("Tribes tiers"))
+                {
+                    
+                    foreach (var tribe in tribes)
+                    {
+                        var currentValue = GetTribeTier(tribe);
+                        if (ImGui.SliderInt($"{tribe}###{tribe}", ref currentValue, 1, 3))
+                        {
+                            TribeTier[tribe] = currentValue;
+                        }
+                    }
+
+                    ImGui.TreePop();
+                }
+
             }
         };
     }
@@ -160,6 +204,11 @@ public class AncestorQolSettings : ISettings
     public int GetUnitTier(string type)
     {
         return UnitTiers.GetValueOrDefault(type ?? "", 2);
+    }
+
+    public int GetTribeTier(string type)
+    {
+        return TribeTier.GetValueOrDefault(type ?? "", 2);
     }
 
     public ToggleNode Enable { get; set; } = new ToggleNode(false);
@@ -174,6 +223,13 @@ public class AncestorQolSettings : ISettings
     public CustomNode Units { get; }
 
     public Dictionary<string, int> UnitTiers = new()
+    {
+    };
+
+    [JsonIgnore]
+    public CustomNode Tribes { get; }
+
+    public Dictionary<string, int> TribeTier = new()
     {
     };
 }
