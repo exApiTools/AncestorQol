@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using ExileCore;
-using ExileCore.PoEMemory.MemoryObjects.Ancestor;
+using ExileCore.PoEMemory;
 using ExileCore.Shared.Helpers;
 using SharpDX;
 using Vector2 = System.Numerics.Vector2;
@@ -24,43 +24,46 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
 
     public void RenderTribeTier()
     {
-        if (GameController.IngameState.IngameUi.AncestorFightSelectionWindow is { IsVisible: true, Options: { Count: > 0 } options })
+        if (GameController.IngameState.IngameUi.AncestorFightSelectionWindow is
+            {
+                IsVisible: true,
+                Options: { Count: > 0 } options,
+                TableContainer.GetClientRectCache: var containerRect
+            })
         {
             foreach (var option in options)
             {
                 try
                 {
-                    var tribeFavourReward = option.Children[3].Children[0].Children;
+                    var tribeName = option.GetChildFromIndices(2, 0, 0)?.Text;
+                    var rewardTier = string.IsNullOrEmpty(tribeName) ? -1 : Settings.GetTribeRewardTier(tribeName);
+                    var rewardColor = TierToColor(rewardTier);
+                    var rewardRect = option[2].GetClientRectCache;
+                    if (rewardRect.Intersects(containerRect))
+                    {
+                        Graphics.DrawFrame(rewardRect, rewardColor, Settings.FrameThickness);
+                    }
+
+                    var tribeFavourReward = option.GetChildFromIndices(3, 0)?.Children ?? new List<Element>();
                     foreach (var tribe in tribeFavourReward)
                     {
-                        
-                        var tooltip = tribe.Children[0].Tooltip.Text;
-                        var tier = Settings.GetTribeTier(tooltip);
-                        var color = tier switch
-                        {
-                            1 => Settings.Tier1Color.Value,
-                            2 => Settings.Tier2Color.Value,
-                            3 => Settings.Tier3Color.Value,
-                            _ => Color.Pink
-                        };
+                        var tooltip = tribe[0]?.Tooltip?.Text;
+                        var tier = Settings.GetTribeShopTier(tooltip);
+                        var color = TierToColor(tier);
                         var rect = tribe.GetClientRectCache;
                         rect.Inflate(-5,0);
-                        if (!rect.Intersects(GameController.IngameState.IngameUi.AncestorFightSelectionWindow.TableContainer.GetClientRectCache)) continue;
+                        if (!rect.Intersects(containerRect)) continue;
                         Graphics.DrawFrame(rect, color, Settings.FrameThickness);
-
                     }
                 }
                 catch (Exception ex)
                 {
                     LogError(ex.ToString());
                 }
-
             }
-
-
         }
-
     }
+
     public void RenderUnitTier()
     {
         if (GameController.Game.IngameState.UIHover?.Tooltip is not { IsVisible: true } &&
@@ -73,13 +76,7 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                     var unit = option.Unit;
                     var item = option.Item;
                     var tier = Settings.GetUnitTier(unit?.Id ?? item?.Id ?? string.Empty);
-                    var color = tier switch
-                    {
-                        1 => Settings.Tier1Color.Value,
-                        2 => Settings.Tier2Color.Value,
-                        3 => Settings.Tier3Color.Value,
-                        _ => Color.Pink
-                    };
+                    var color = TierToColor(tier);
                     var tooltipDescription = (unit, item) switch
                     {
                         (_, { }) => string.Join("\n", option.Tooltip?.GetChildFromIndices(0, 0)?.Children.Where(x => x.IsVisible).Select(x => x.TextNoTags) ?? new List<string>()),
@@ -106,6 +103,16 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                 }
             }
         }
+    }
 
+    private Color TierToColor(int tier)
+    {
+        return tier switch
+        {
+            1 => Settings.Tier1Color.Value,
+            2 => Settings.Tier2Color.Value,
+            3 => Settings.Tier3Color.Value,
+            _ => Color.Pink
+        };
     }
 }

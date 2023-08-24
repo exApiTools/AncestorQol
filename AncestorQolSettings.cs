@@ -135,7 +135,7 @@ public class AncestorQolSettings : ISettings
         ("NoTribeTotemLife", "Albino Weta"),
     };
 
-    private static readonly List<string> tribes = new()
+    private static readonly List<string> TribeNames = new()
     {
         "Ngamahu Tribe",
         "Tasalio Tribe",
@@ -152,13 +152,13 @@ public class AncestorQolSettings : ISettings
     public AncestorQolSettings()
     {
         var unitFilter = "";
+        var tribeFilter = "";
         Units = new CustomNode
         {
             DrawDelegate = () =>
             {
                 if (ImGui.TreeNode("Unit tiers"))
                 {
-                    
                     ImGui.InputTextWithHint("##CurrencyFilter", "Filter", ref unitFilter, 100);
                     foreach (var (id, name) in UnitTypes.Where(t => t.Name.Contains(unitFilter, StringComparison.InvariantCultureIgnoreCase)))
                     {
@@ -171,31 +171,54 @@ public class AncestorQolSettings : ISettings
 
                     ImGui.TreePop();
                 }
-
             }
-
         };
 
         Tribes = new CustomNode
         {
             DrawDelegate = () =>
             {
-
-                if (ImGui.TreeNode("Tribes tiers"))
+                if (ImGui.TreeNode("Tribe tiers"))
                 {
-                    
-                    foreach (var tribe in tribes)
+                    ImGui.InputTextWithHint("##TribeFilter", "Filter", ref tribeFilter, 100);
+
+                    if (ImGui.BeginTable("Relic Weight", 4, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders))
                     {
-                        var currentValue = GetTribeTier(tribe);
-                        if (ImGui.SliderInt($"{tribe}###{tribe}", ref currentValue, 1, 3))
+                        ImGui.TableSetupColumn("Name");
+                        ImGui.TableSetupColumn("Shop tier", ImGuiTableColumnFlags.WidthFixed, 300);
+                        ImGui.TableSetupColumn("Reward tier", ImGuiTableColumnFlags.WidthFixed, 300);
+                        ImGui.TableHeadersRow();
+                        foreach (var tribe in TribeNames.Where(t => t.Contains(tribeFilter, StringComparison.InvariantCultureIgnoreCase)))
                         {
-                            TribeTier[tribe] = currentValue;
+                            ImGui.PushID($"tribe{tribe}");
+                            ImGui.TableNextRow(ImGuiTableRowFlags.None);
+                            ImGui.TableNextColumn();
+                            ImGui.Text(tribe);
+                            ImGui.TableNextColumn();
+                            ImGui.SetNextItemWidth(300);
+                            var shopTier = GetTribeShopTier(tribe);
+                            if (ImGui.SliderInt($"{tribe} shop", ref shopTier, 1, 3))
+                            {
+                                TribeShopTiers[tribe] = shopTier;
+                            }
+
+                            ImGui.TableNextColumn();
+                            ImGui.SetNextItemWidth(300);
+
+                            var rewardTier = GetTribeRewardTier(tribe);
+                            if (ImGui.SliderInt($"{tribe} reward", ref rewardTier, 1, 3))
+                            {
+                                TribeRewardTiers[tribe] = rewardTier;
+                            }
+
+                            ImGui.PopID();
                         }
+
+                        ImGui.EndTable();
                     }
 
                     ImGui.TreePop();
                 }
-
             }
         };
     }
@@ -206,9 +229,14 @@ public class AncestorQolSettings : ISettings
         return UnitTiers.GetValueOrDefault(type ?? "", 2);
     }
 
-    public int GetTribeTier(string type)
+    public int GetTribeShopTier(string tribeName)
     {
-        return TribeTier.GetValueOrDefault(type ?? "", 2);
+        return TribeShopTiers.GetValueOrDefault(tribeName ?? "", 2);
+    }
+
+    public int GetTribeRewardTier(string tribeName)
+    {
+        return TribeRewardTiers.GetValueOrDefault(tribeName ?? "", 2);
     }
 
     public ToggleNode Enable { get; set; } = new ToggleNode(false);
@@ -222,14 +250,29 @@ public class AncestorQolSettings : ISettings
     [JsonIgnore]
     public CustomNode Units { get; }
 
+    [JsonIgnore]
+    public CustomNode Tribes { get; }
+
+
     public Dictionary<string, int> UnitTiers = new()
     {
     };
 
-    [JsonIgnore]
-    public CustomNode Tribes { get; }
-
-    public Dictionary<string, int> TribeTier = new()
+    public Dictionary<string, int> TribeShopTiers = new()
     {
+    };
+
+    public Dictionary<string, int> TribeRewardTiers = new()
+    {
+        ["Ngamahu Tribe"] = 1,
+        ["Tawhoa Tribe"] = 1,
+        ["Ramako Tribe"] = 1,
+        ["Arohongui Tribe"] = 1,
+        ["Tasalio Tribe"] = 1,
+        ["Valako Tribe"] = 3,
+        ["Hinekora Tribe"] = 3,
+        ["Kitava Tribe"] = 3,
+        ["Tukohama Tribe"] = 3,
+        ["Rongokurai Tribe"] = 3,
     };
 }
