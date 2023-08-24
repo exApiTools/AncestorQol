@@ -159,14 +159,41 @@ public class AncestorQolSettings : ISettings
             {
                 if (ImGui.TreeNode("Unit tiers"))
                 {
-                    ImGui.InputTextWithHint("##CurrencyFilter", "Filter", ref unitFilter, 100);
-                    foreach (var (id, name) in UnitTypes.Where(t => t.Name.Contains(unitFilter, StringComparison.InvariantCultureIgnoreCase)))
+                    ImGui.InputTextWithHint("##UnitFilter", "Filter", ref unitFilter, 100);
+
+                    if (ImGui.BeginTable("UnitConfig", 4, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders))
                     {
-                        var currentValue = GetUnitTier(id);
-                        if (ImGui.SliderInt($"{name}###{id}", ref currentValue, 1, 3))
+                        ImGui.TableSetupColumn("Name");
+                        ImGui.TableSetupColumn("Tier", ImGuiTableColumnFlags.WidthFixed, 300);
+                        ImGui.TableSetupColumn("Note", ImGuiTableColumnFlags.WidthFixed, 300);
+                        ImGui.TableHeadersRow();
+                        foreach (var (id, name) in UnitTypes.Where(t => t.Name.Contains(unitFilter, StringComparison.InvariantCultureIgnoreCase)))
                         {
-                            UnitTiers[id] = currentValue;
+                            ImGui.PushID($"unit{id}");
+                            ImGui.TableNextRow(ImGuiTableRowFlags.None);
+                            ImGui.TableNextColumn();
+                            ImGui.Text(name);
+                            ImGui.TableNextColumn();
+                            ImGui.SetNextItemWidth(300);
+                            var currentValue = GetUnitTier(id);
+                            if (ImGui.SliderInt($"{name}###{id}", ref currentValue, 1, 3))
+                            {
+                                UnitTiers[id] = currentValue;
+                            }
+
+                            ImGui.TableNextColumn();
+                            ImGui.SetNextItemWidth(300);
+
+                            var note = UnitNotes.GetValueOrDefault(id) ?? string.Empty;
+                            if (ImGui.InputText("note", ref note, 200))
+                            {
+                                UnitNotes[id] = note;
+                            }
+
+                            ImGui.PopID();
                         }
+
+                        ImGui.EndTable();
                     }
 
                     ImGui.TreePop();
@@ -182,7 +209,7 @@ public class AncestorQolSettings : ISettings
                 {
                     ImGui.InputTextWithHint("##TribeFilter", "Filter", ref tribeFilter, 100);
 
-                    if (ImGui.BeginTable("Relic Weight", 4, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders))
+                    if (ImGui.BeginTable("TribeConfig", 4, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders))
                     {
                         ImGui.TableSetupColumn("Name");
                         ImGui.TableSetupColumn("Shop tier", ImGuiTableColumnFlags.WidthFixed, 300);
@@ -255,6 +282,10 @@ public class AncestorQolSettings : ISettings
 
 
     public Dictionary<string, int> UnitTiers = new()
+    {
+    };
+
+    public Dictionary<string, string> UnitNotes = new()
     {
     };
 

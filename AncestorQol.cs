@@ -51,7 +51,7 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                         var tier = Settings.GetTribeShopTier(tooltip);
                         var color = TierToColor(tier);
                         var rect = tribe.GetClientRectCache;
-                        rect.Inflate(-5,0);
+                        rect.Inflate(-5, 0);
                         if (!rect.Intersects(containerRect)) continue;
                         Graphics.DrawFrame(rect, color, Settings.FrameThickness);
                     }
@@ -76,6 +76,7 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                     var unit = option.Unit;
                     var item = option.Item;
                     var tier = Settings.GetUnitTier(unit?.Id ?? item?.Id ?? string.Empty);
+                    var note = Settings.UnitNotes.GetValueOrDefault(unit?.Id ?? item?.Id ?? string.Empty);
                     var color = TierToColor(tier);
                     var tooltipDescription = (unit, item) switch
                     {
@@ -96,6 +97,40 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                     Graphics.DrawBox(topRight, topRight + rect, Color.Black);
                     Graphics.DrawFrame(topRight, topRight + rect, color, Settings.FrameThickness);
                     Graphics.DrawText(tooltipDescription, topRight + new Vector2(textPadding), Color.White);
+                    if (!string.IsNullOrEmpty(note))
+                    {
+                        var noteRect = option[2]?.GetClientRectCache ?? default;
+                        Graphics.DrawBox(noteRect, Color.Black);
+                        Graphics.DrawText(note, noteRect.TopLeft.ToVector2Num());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogError(ex.ToString());
+                }
+            }
+        }
+
+        if (GameController.IngameState.IngameUi.AncestorLeftShopPanel is { IsVisible: true, Options: { Count: > 0 } leftOptions })
+        {
+            foreach (var option in leftOptions)
+            {
+                try
+                {
+                    var unit = option.Unit;
+                    var item = option.Item;
+                    var tier = Settings.GetUnitTier(unit?.Id ?? item?.Id ?? string.Empty);
+                    var note = Settings.UnitNotes.GetValueOrDefault(unit?.Id ?? item?.Id ?? string.Empty);
+                    var color = TierToColor(tier);
+
+                    var optionRect = option.GetClientRectCache;
+                    Graphics.DrawFrame(optionRect, color, Settings.FrameThickness);
+                    if (!string.IsNullOrEmpty(note))
+                    {
+                        var noteRect = option[2]?.GetClientRectCache ?? default;
+                        Graphics.DrawBox(noteRect, Color.Black);
+                        Graphics.DrawText(note, noteRect.TopLeft.ToVector2Num());
+                    }
                 }
                 catch (Exception ex)
                 {
