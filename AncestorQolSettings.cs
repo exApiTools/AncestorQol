@@ -214,6 +214,7 @@ public class AncestorQolSettings : ISettings
                         ImGui.TableSetupColumn("Name");
                         ImGui.TableSetupColumn("Shop tier", ImGuiTableColumnFlags.WidthFixed, 300);
                         ImGui.TableSetupColumn("Reward tier", ImGuiTableColumnFlags.WidthFixed, 300);
+                        ImGui.TableSetupColumn("Notes", ImGuiTableColumnFlags.WidthFixed, 300);
                         ImGui.TableHeadersRow();
                         foreach (var tribe in TribeNames.Where(t => t.Contains(tribeFilter, StringComparison.InvariantCultureIgnoreCase)))
                         {
@@ -236,6 +237,15 @@ public class AncestorQolSettings : ISettings
                             if (ImGui.SliderInt($"{tribe} reward", ref rewardTier, 1, 5))
                             {
                                 TribeRewardTiers[tribe] = rewardTier;
+                            }
+
+                            ImGui.TableNextColumn();
+                            ImGui.SetNextItemWidth(300);
+
+                            var favorNote = FavorNotes.GetValueOrDefault(tribe) ?? string.Empty; // this bit here
+                            if (ImGui.InputText($"{tribe} favor note", ref favorNote, 200))
+                            {
+                                FavorNotes[tribe] = favorNote;
                             }
 
                             ImGui.PopID();
@@ -289,6 +299,10 @@ public class AncestorQolSettings : ISettings
     };
 
     public Dictionary<string, string> UnitNotes = new()
+    {
+    };
+
+    public Dictionary<string, string> FavorNotes = new()
     {
     };
 

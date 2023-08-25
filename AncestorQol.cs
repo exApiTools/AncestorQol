@@ -47,13 +47,23 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                     var tribeFavourReward = option.GetChildFromIndices(3, 0)?.Children ?? new List<Element>();
                     foreach (var tribe in tribeFavourReward)
                     {
-                        var tooltip = tribe[0]?.Tooltip?.Text;
-                        var tier = Settings.GetTribeShopTier(tooltip);
+                        var favorTribeName = tribe[0]?.Tooltip?.Text;
+                        var tier = Settings.GetTribeShopTier(favorTribeName);
                         var color = TierToColor(tier);
                         var rect = tribe.GetClientRectCache;
                         rect.Inflate(-5, 0);
                         if (!rect.Intersects(containerRect)) continue;
                         Graphics.DrawFrame(rect, color, Settings.FrameThickness);
+
+                        var favorNote = Settings.FavorNotes.GetValueOrDefault(favorTribeName ?? string.Empty);
+                        if (!string.IsNullOrEmpty(favorNote))
+                        {
+                            var textSize = Graphics.MeasureText(favorNote);
+                            var textOffset = new Vector2((rect.Width - textSize.X) / 2, 0);
+                            var textPos = rect.BottomLeft.ToVector2Num() + textOffset;
+                            Graphics.DrawBox(rect.BottomLeft.ToVector2Num(), rect.BottomRight.ToVector2Num() + new Vector2(0, textSize.Y), Color.Black);
+                            Graphics.DrawText(favorNote, textPos, Color.White);
+                        }
                     }
                 }
                 catch (Exception ex)
