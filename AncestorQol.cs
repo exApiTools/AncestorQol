@@ -147,6 +147,8 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
             1 => Settings.Tier1Color.Value,
             2 => Settings.Tier2Color.Value,
             3 => Settings.Tier3Color.Value,
+            4 => Settings.Tier4Color.Value,
+            5 => Settings.Tier5Color.Value,
             _ => Color.Pink
         };
     }

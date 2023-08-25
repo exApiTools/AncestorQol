@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
 using ExileCore.Shared.Interfaces;
 using ExileCore.Shared.Nodes;
@@ -176,7 +177,7 @@ public class AncestorQolSettings : ISettings
                             ImGui.TableNextColumn();
                             ImGui.SetNextItemWidth(300);
                             var currentValue = GetUnitTier(id);
-                            if (ImGui.SliderInt($"{name}###{id}", ref currentValue, 1, 3))
+                            if (ImGui.SliderInt($"{name}###{id}", ref currentValue, 1, 5))
                             {
                                 UnitTiers[id] = currentValue;
                             }
@@ -224,7 +225,7 @@ public class AncestorQolSettings : ISettings
                             ImGui.TableNextColumn();
                             ImGui.SetNextItemWidth(300);
                             var shopTier = GetTribeShopTier(tribe);
-                            if (ImGui.SliderInt($"{tribe} shop", ref shopTier, 1, 3))
+                            if (ImGui.SliderInt($"{tribe} shop", ref shopTier, 1, 5))
                             {
                                 TribeShopTiers[tribe] = shopTier;
                             }
@@ -233,7 +234,7 @@ public class AncestorQolSettings : ISettings
                             ImGui.SetNextItemWidth(300);
 
                             var rewardTier = GetTribeRewardTier(tribe);
-                            if (ImGui.SliderInt($"{tribe} reward", ref rewardTier, 1, 3))
+                            if (ImGui.SliderInt($"{tribe} reward", ref rewardTier, 1, 5))
                             {
                                 TribeRewardTiers[tribe] = rewardTier;
                             }
@@ -253,26 +254,29 @@ public class AncestorQolSettings : ISettings
 
     public int GetUnitTier(string type)
     {
-        return UnitTiers.GetValueOrDefault(type ?? "", 2);
+        return UnitTiers.GetValueOrDefault(type ?? "", 3);
     }
 
     public int GetTribeShopTier(string tribeName)
     {
-        return TribeShopTiers.GetValueOrDefault(tribeName ?? "", 2);
+        return TribeShopTiers.GetValueOrDefault(tribeName ?? "", 3);
     }
 
     public int GetTribeRewardTier(string tribeName)
     {
-        return TribeRewardTiers.GetValueOrDefault(tribeName ?? "", 2);
+        return TribeRewardTiers.GetValueOrDefault(tribeName ?? "", 3);
     }
 
     public ToggleNode Enable { get; set; } = new ToggleNode(false);
 
     public RangeNode<int> FrameThickness { get; set; } = new RangeNode<int>(2, 0, 10);
 
-    public ColorNode Tier1Color { get; set; } = new(Color.Green);
-    public ColorNode Tier2Color { get; set; } = new(Color.White);
-    public ColorNode Tier3Color { get; set; } = new(Color.Red);
+    public ColorNode Tier1Color { get; set; } = new(Color.Purple);
+    public ColorNode Tier2Color { get; set; } = new(Color.Green);
+    public ColorNode Tier3Color { get; set; } = new(Color.White);
+    public ColorNode Tier4Color { get; set; } = new(Color.Yellow);
+    public ColorNode Tier5Color { get; set; } = new(Color.Red);
+
 
     [JsonIgnore]
     public CustomNode Units { get; }
@@ -295,15 +299,15 @@ public class AncestorQolSettings : ISettings
 
     public Dictionary<string, int> TribeRewardTiers = new()
     {
-        ["Ngamahu Tribe"] = 1,
-        ["Tawhoa Tribe"] = 1,
-        ["Ramako Tribe"] = 1,
-        ["Arohongui Tribe"] = 1,
-        ["Tasalio Tribe"] = 1,
-        ["Valako Tribe"] = 3,
-        ["Hinekora Tribe"] = 3,
-        ["Kitava Tribe"] = 3,
-        ["Tukohama Tribe"] = 3,
-        ["Rongokurai Tribe"] = 3,
+        ["Ngamahu Tribe"] = 2,
+        ["Tawhoa Tribe"] = 2,
+        ["Ramako Tribe"] = 2,
+        ["Arohongui Tribe"] = 2,
+        ["Tasalio Tribe"] = 2,
+        ["Valako Tribe"] = 5,
+        ["Hinekora Tribe"] = 5,
+        ["Kitava Tribe"] = 5,
+        ["Tukohama Tribe"] = 5,
+        ["Rongokurai Tribe"] = 5,
     };
 }
