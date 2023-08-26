@@ -47,37 +47,22 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                     var tribeFavourReward = option.GetChildFromIndices(3, 0)?.Children ?? new List<Element>();
                     foreach (var tribe in tribeFavourReward)
                     {
-                        var tooltip = tribe[0]?.Tooltip?.Text;
-                        var tier = Settings.GetTribeShopTier(tooltip);
-                        var favorNote = Settings.FavorNotes.GetValueOrDefault(tooltip ?? string.Empty);
+                        var favorTribeName = tribe[0]?.Tooltip?.Text;
+                        var tier = Settings.GetTribeShopTier(favorTribeName);
                         var color = TierToColor(tier);
                         var rect = tribe.GetClientRectCache;
                         rect.Inflate(-5, 0);
                         if (!rect.Intersects(containerRect)) continue;
                         Graphics.DrawFrame(rect, color, Settings.FrameThickness);
 
+                        var favorNote = Settings.FavorNotes.GetValueOrDefault(favorTribeName ?? string.Empty);
                         if (!string.IsNullOrEmpty(favorNote))
                         {
-                            var favorNoteRect = rect;
-                            favorNoteRect.Height = 30; // Adjust the height of the box as needed
-                            favorNoteRect.X = rect.Left; // Place it at the left of the tribe rectangle
-                            favorNoteRect.Y = rect.Bottom - favorNoteRect.Height; // Place it at the bottom
-
-                            var boxVerticalOffset = -30; // You can adjust this value as needed
-                            favorNoteRect.Y -= boxVerticalOffset;
-
-                            //The above works for 4k, but for other resolutions needs to be converted to relative screen size units, or a ui element
-                            //needs to be added to adjust these on a fixed slider if they are gonna be a fixed value.
-
-                            Graphics.DrawBox(favorNoteRect, Color.Black);
-
-                            // Calculate text position to center it within the black box
                             var textSize = Graphics.MeasureText(favorNote);
-                            var textPosition = new Vector2(
-                                favorNoteRect.Left + (favorNoteRect.Width - textSize.X) / 2,
-                                favorNoteRect.Top + (favorNoteRect.Height - textSize.Y) / 2);
-
-                            Graphics.DrawText(favorNote, textPosition, Color.White);
+                            var textOffset = new Vector2((rect.Width - textSize.X) / 2, 0);
+                            var textPos = rect.BottomLeft.ToVector2Num() + textOffset;
+                            Graphics.DrawBox(rect.BottomLeft.ToVector2Num(), rect.BottomRight.ToVector2Num() + new Vector2(0, textSize.Y), Color.Black);
+                            Graphics.DrawText(favorNote, textPos, Color.White);
                         }
                     }
                 }
@@ -124,9 +109,9 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                     Graphics.DrawText(tooltipDescription, topRight + new Vector2(textPadding), Color.White);
                     if (!string.IsNullOrEmpty(unitNote))
                     {
-                        var noteRect = option[2]?.GetClientRectCache ?? default;
-                        Graphics.DrawBox(noteRect, Color.Black);
-                        Graphics.DrawText(unitNote, noteRect.TopLeft.ToVector2Num());
+                        var unitNoteRect = option[2]?.GetClientRectCache ?? default;
+                        Graphics.DrawBox(unitNoteRect, Color.Black);
+                        Graphics.DrawText(unitNote, unitNoteRect.TopLeft.ToVector2Num());
                     }
                 }
                 catch (Exception ex)
@@ -152,9 +137,9 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                     Graphics.DrawFrame(optionRect, color, Settings.FrameThickness);
                     if (!string.IsNullOrEmpty(unitNote))
                     {
-                        var noteRect = option[2]?.GetClientRectCache ?? default;
-                        Graphics.DrawBox(noteRect, Color.Black);
-                        Graphics.DrawText(unitNote, noteRect.TopLeft.ToVector2Num());
+                        var unitNoteRect = option[2]?.GetClientRectCache ?? default;
+                        Graphics.DrawBox(unitNoteRect, Color.Black);
+                        Graphics.DrawText(unitNote, unitNoteRect.TopLeft.ToVector2Num());
                     }
                 }
                 catch (Exception ex)
