@@ -86,7 +86,7 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                     var unit = option.Unit;
                     var item = option.Item;
                     var tier = Settings.GetUnitTier(unit?.Id ?? item?.Id ?? string.Empty);
-                    var note = Settings.UnitNotes.GetValueOrDefault(unit?.Id ?? item?.Id ?? string.Empty);
+                    var unitNote = Settings.UnitNotes.GetValueOrDefault(unit?.Id ?? item?.Id ?? string.Empty);
                     var color = TierToColor(tier);
                     var tooltipDescription = (unit, item) switch
                     {
@@ -107,11 +107,11 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                     Graphics.DrawBox(topRight, topRight + rect, Color.Black);
                     Graphics.DrawFrame(topRight, topRight + rect, color, Settings.FrameThickness);
                     Graphics.DrawText(tooltipDescription, topRight + new Vector2(textPadding), Color.White);
-                    if (!string.IsNullOrEmpty(note))
+                    if (!string.IsNullOrEmpty(unitNote))
                     {
-                        var noteRect = option[2]?.GetClientRectCache ?? default;
-                        Graphics.DrawBox(noteRect, Color.Black);
-                        Graphics.DrawText(note, noteRect.TopLeft.ToVector2Num());
+                        var unitNoteRect = option[2]?.GetClientRectCache ?? default;
+                        Graphics.DrawBox(unitNoteRect, Color.Black);
+                        Graphics.DrawText(unitNote, unitNoteRect.TopLeft.ToVector2Num());
                     }
                 }
                 catch (Exception ex)
@@ -130,16 +130,16 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                     var unit = option.Unit;
                     var item = option.Item;
                     var tier = Settings.GetUnitTier(unit?.Id ?? item?.Id ?? string.Empty);
-                    var note = Settings.UnitNotes.GetValueOrDefault(unit?.Id ?? item?.Id ?? string.Empty);
+                    var unitNote = Settings.UnitNotes.GetValueOrDefault(unit?.Id ?? item?.Id ?? string.Empty);
                     var color = TierToColor(tier);
 
                     var optionRect = option.GetClientRectCache;
                     Graphics.DrawFrame(optionRect, color, Settings.FrameThickness);
-                    if (!string.IsNullOrEmpty(note))
+                    if (!string.IsNullOrEmpty(unitNote))
                     {
-                        var noteRect = option[2]?.GetClientRectCache ?? default;
-                        Graphics.DrawBox(noteRect, Color.Black);
-                        Graphics.DrawText(note, noteRect.TopLeft.ToVector2Num());
+                        var unitNoteRect = option[2]?.GetClientRectCache ?? default;
+                        Graphics.DrawBox(unitNoteRect, Color.Black);
+                        Graphics.DrawText(unitNote, unitNoteRect.TopLeft.ToVector2Num());
                     }
                 }
                 catch (Exception ex)

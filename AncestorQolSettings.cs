@@ -157,7 +157,7 @@ public class AncestorQolSettings : ISettings
         {
             DrawDelegate = () =>
             {
-                if (ImGui.TreeNode("Unit tiers"))
+                if (ImGui.TreeNode("Unit & Item Tiers"))
                 {
                     ImGui.InputTextWithHint("##UnitFilter", "Filter", ref unitFilter, 100);
 
@@ -165,7 +165,7 @@ public class AncestorQolSettings : ISettings
                     {
                         ImGui.TableSetupColumn("Name");
                         ImGui.TableSetupColumn("Tier", ImGuiTableColumnFlags.WidthFixed, 300);
-                        ImGui.TableSetupColumn("Note", ImGuiTableColumnFlags.WidthFixed, 300);
+                        ImGui.TableSetupColumn("Notes", ImGuiTableColumnFlags.WidthFixed, 300);
                         ImGui.TableHeadersRow();
                         foreach (var (id, name) in UnitTypes.Where(t => t.Name.Contains(unitFilter, StringComparison.InvariantCultureIgnoreCase)))
                         {
@@ -184,10 +184,10 @@ public class AncestorQolSettings : ISettings
                             ImGui.TableNextColumn();
                             ImGui.SetNextItemWidth(300);
 
-                            var note = UnitNotes.GetValueOrDefault(id) ?? string.Empty;
-                            if (ImGui.InputText("note", ref note, 200))
+                            var unitNote = UnitNotes.GetValueOrDefault(id) ?? string.Empty;
+                            if (ImGui.InputText("unit & item note", ref unitNote, 200))
                             {
-                                UnitNotes[id] = note;
+                                UnitNotes[id] = unitNote;
                             }
 
                             ImGui.PopID();
@@ -205,16 +205,16 @@ public class AncestorQolSettings : ISettings
         {
             DrawDelegate = () =>
             {
-                if (ImGui.TreeNode("Tribe tiers"))
+                if (ImGui.TreeNode("Tribe Tiers"))
                 {
                     ImGui.InputTextWithHint("##TribeFilter", "Filter", ref tribeFilter, 100);
 
                     if (ImGui.BeginTable("TribeConfig", 4, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders))
                     {
-                        ImGui.TableSetupColumn("Name");
-                        ImGui.TableSetupColumn("Shop tier", ImGuiTableColumnFlags.WidthFixed, 300);
-                        ImGui.TableSetupColumn("Reward tier", ImGuiTableColumnFlags.WidthFixed, 300);
-                        ImGui.TableSetupColumn("Notes", ImGuiTableColumnFlags.WidthFixed, 300);
+                        ImGui.TableSetupColumn("Tribe Name");
+                        ImGui.TableSetupColumn("Favor Reward Tier", ImGuiTableColumnFlags.WidthFixed, 300);
+                        ImGui.TableSetupColumn("Item Reward Tier", ImGuiTableColumnFlags.WidthFixed, 300);
+                        ImGui.TableSetupColumn("Favor Reward Notes", ImGuiTableColumnFlags.WidthFixed, 300);
                         ImGui.TableHeadersRow();
                         foreach (var tribe in TribeNames.Where(t => t.Contains(tribeFilter, StringComparison.InvariantCultureIgnoreCase)))
                         {
@@ -225,7 +225,7 @@ public class AncestorQolSettings : ISettings
                             ImGui.TableNextColumn();
                             ImGui.SetNextItemWidth(300);
                             var shopTier = GetTribeShopTier(tribe);
-                            if (ImGui.SliderInt($"{tribe} shop", ref shopTier, 1, 5))
+                            if (ImGui.SliderInt($"{tribe} favor", ref shopTier, 1, 5))
                             {
                                 TribeShopTiers[tribe] = shopTier;
                             }
