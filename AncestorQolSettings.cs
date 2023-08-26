@@ -185,7 +185,7 @@ public class AncestorQolSettings : ISettings
                             ImGui.SetNextItemWidth(300);
 
                             var unitNote = UnitNotes.GetValueOrDefault(id) ?? string.Empty;
-                            if (ImGui.InputText(" unit & item note", ref unitNote, 200))
+                            if (ImGui.InputText("unit & item note", ref unitNote, 200))
                             {
                                 UnitNotes[id] = unitNote;
                             }
