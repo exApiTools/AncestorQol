@@ -285,7 +285,7 @@ public class AncestorQolSettings : ISettings
     public ColorNode Tier3Color { get; set; } = new(Color.White);
     public ColorNode Tier4Color { get; set; } = new(Color.Yellow);
     public ColorNode Tier5Color { get; set; } = new(Color.Red);
-
+    public ToggleNode DrawTribeRewardFrameOverTheWholeElement { get; set; } = new ToggleNode(true);
 
     [JsonIgnore]
     public CustomNode Units { get; }

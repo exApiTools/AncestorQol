@@ -31,14 +31,16 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                 TableContainer.GetClientRectCache: var containerRect
             })
         {
-            foreach (var option in options)
+            for (var optionIndex = 0; optionIndex < options.Count; optionIndex++)
             {
+                var option = options[optionIndex];
                 try
                 {
                     var tribeName = option.GetChildFromIndices(2, 0, 0)?.Text;
                     var rewardTier = string.IsNullOrEmpty(tribeName) ? -1 : Settings.GetTribeRewardTier(tribeName);
                     var rewardColor = TierToColor(rewardTier);
-                    var rewardRect = option[2].GetClientRectCache;
+                    var rewardRect = (Settings.DrawTribeRewardFrameOverTheWholeElement?option: option[2])?.GetClientRectCache ?? default;
+                    rewardRect.Inflate(0, -Settings.FrameThickness);
                     if (rewardRect.Intersects(containerRect))
                     {
                         Graphics.DrawFrame(rewardRect, rewardColor, Settings.FrameThickness);
@@ -63,6 +65,37 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                             var textPos = rect.BottomLeft.ToVector2Num() + textOffset;
                             Graphics.DrawBox(rect.BottomLeft.ToVector2Num(), rect.BottomRight.ToVector2Num() + new Vector2(0, textSize.Y), Color.Black);
                             Graphics.DrawText(favorNote, textPos, Color.White);
+                        }
+                    }
+
+                    var favorContainerRect = option[3]?.GetClientRectCache ?? default;
+                    var favorSummaryPos = new Vector2(favorContainerRect.Center.X, favorContainerRect.Top);
+                    var rewardsByTier = GameController.IngameState.ServerData.AncestorFights.Options.ElementAtOrDefault(optionIndex)?.Rewards
+                        .ToLookup(x => Settings.GetTribeShopTier(x.FavorTribe.NameTribe));
+                    if (rewardsByTier != null)
+                    {
+                        var colors = new Color[] { Settings.Tier1Color, Settings.Tier2Color, Settings.Tier3Color, Settings.Tier4Color, Settings.Tier5Color };
+                        for (int i = 1; i <= 5; i++)
+                        {
+                            var sum = rewardsByTier[i].Sum(x => x.FavorAmount);
+                            var text = $"   T{i}: {sum,4}";
+                            var textSize = Graphics.MeasureText(text);
+                            if (sum != 0 && containerRect.Contains(favorSummaryPos))
+                            {
+                                Graphics.DrawBox(favorSummaryPos, favorSummaryPos + textSize, Color.Black);
+                                Graphics.DrawText(text, favorSummaryPos, colors[i - 1]);
+                            }
+
+                            favorSummaryPos += textSize with { X = 0 };
+                        }
+
+                        var completeSum = rewardsByTier.SelectMany(x => x).Sum(x => x.FavorAmount);
+                        if (completeSum != 0 && containerRect.Contains(favorSummaryPos))
+                        {
+                            var completeSumText = $"Total: {completeSum,4}";
+                            var completeSumTextSize = Graphics.MeasureText(completeSumText);
+                            Graphics.DrawBox(favorSummaryPos, favorSummaryPos + completeSumTextSize, Color.Black);
+                            Graphics.DrawText(completeSumText, favorSummaryPos, Color.White);
                         }
                     }
                 }
@@ -106,6 +139,7 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                     var topRight = optionRect.TopRight.ToVector2Num();
                     Graphics.DrawBox(topRight, topRight + rect, Color.Black);
                     Graphics.DrawFrame(topRight, topRight + rect, color, Settings.FrameThickness);
+                    Graphics.DrawFrame(optionRect, color, Settings.FrameThickness);
                     Graphics.DrawText(tooltipDescription, topRight + new Vector2(textPadding), Color.White);
                     if (!string.IsNullOrEmpty(unitNote))
                     {
