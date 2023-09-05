@@ -36,7 +36,7 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                 var option = options[optionIndex];
                 try
                 {
-                    var tribeName = option.GetChildFromIndices(2, 0, 0)?.Text;
+                    var tribeName = option.GetChildFromIndices(1, 0, 0)?.Text;
                     var rewardTier = string.IsNullOrEmpty(tribeName) ? -1 : Settings.GetTribeRewardTier(tribeName);
                     var rewardColor = TierToColor(rewardTier);
                     var rewardRect = (Settings.DrawTribeRewardFrameOverTheWholeElement?option: option[2])?.GetClientRectCache ?? default;
