@@ -69,33 +69,60 @@ public class AncestorQol : BaseSettingsPlugin<AncestorQolSettings>
                     }
 
                     var favorContainerRect = option[3]?.GetClientRectCache ?? default;
-                    var favorSummaryPos = new Vector2(favorContainerRect.Center.X, favorContainerRect.Top);
                     var rewardsByTier = GameController.IngameState.ServerData.AncestorFights.Options.ElementAtOrDefault(optionIndex)?.Rewards
                         .ToLookup(x => Settings.GetTribeShopTier(x.FavorTribe.NameTribe));
                     if (rewardsByTier != null)
                     {
                         var colors = new Color[] { Settings.Tier1Color, Settings.Tier2Color, Settings.Tier3Color, Settings.Tier4Color, Settings.Tier5Color };
+
+                        var lines = new List<(string Text, Color Color)>();
                         for (int i = 1; i <= 5; i++)
                         {
                             var sum = rewardsByTier[i].Sum(x => x.FavorAmount);
-                            var text = $"   T{i}: {sum,4}";
-                            var textSize = Graphics.MeasureText(text);
-                            if (sum != 0 && containerRect.Contains(favorSummaryPos))
+                            if (sum != 0)
                             {
-                                Graphics.DrawBox(favorSummaryPos, favorSummaryPos + textSize, Color.Black);
-                                Graphics.DrawText(text, favorSummaryPos, colors[i - 1]);
+                                lines.Add(($"{$"T{i}",5}: {sum,5}", colors[i - 1]));
                             }
-
-                            favorSummaryPos += textSize with { X = 0 };
                         }
 
-                        var completeSum = rewardsByTier.SelectMany(x => x).Sum(x => x.FavorAmount);
-                        if (completeSum != 0 && containerRect.Contains(favorSummaryPos))
+                        if (lines.Count > 0)
                         {
-                            var completeSumText = $"Total: {completeSum,4}";
-                            var completeSumTextSize = Graphics.MeasureText(completeSumText);
-                            Graphics.DrawBox(favorSummaryPos, favorSummaryPos + completeSumTextSize, Color.Black);
-                            Graphics.DrawText(completeSumText, favorSummaryPos, Color.White);
+                            var completeSum = rewardsByTier.SelectMany(x => x).Sum(x => x.FavorAmount);
+                            // Only worth a separate total line when more than one tier contributes.
+                            if (lines.Count > 1)
+                            {
+                                lines.Add(($"{"Total",5}: {completeSum,5}", Color.White));
+                            }
+
+                            var lineHeight = Graphics.MeasureText(lines[0].Text).Y;
+                            var blockWidth = lines.Max(l => Graphics.MeasureText(l.Text).X);
+                            var blockHeight = lineHeight * lines.Count;
+                            const float padX = 3;
+                            var blockPos = new Vector2(favorContainerRect.Center.X - blockWidth / 2, favorContainerRect.Top);
+
+                            if (containerRect.Contains(blockPos))
+                            {
+                                Graphics.DrawBox(
+                                    blockPos - new Vector2(padX, 0),
+                                    blockPos + new Vector2(blockWidth + padX, blockHeight),
+                                    Color.Black);
+
+                                var linePos = blockPos;
+                                foreach (var (text, color) in lines)
+                                {
+                                    // Thin divider above the summed total to set it apart from the tiers.
+                                    if (lines.Count > 1 && text.StartsWith("Total"))
+                                    {
+                                        Graphics.DrawLine(
+                                            linePos - new Vector2(padX, 0),
+                                            linePos + new Vector2(blockWidth + padX, 0),
+                                            1, Color.Gray);
+                                    }
+
+                                    Graphics.DrawText(text, linePos, color);
+                                    linePos.Y += lineHeight;
+                                }
+                            }
                         }
                     }
                 }
